@@ -1,0 +1,98 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Flasky{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+<script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url_for('static', filename='ckeditor/plugins/filebrowser/plugin.js') }}"></script>
+<script>
+    CKEDITOR.plugins.addExternal('filebrowser', '/static/ckeditor/plugins/filebrowser/', 'plugin.js');
+    CKEDITOR.config.extraPlugins = 'filebrowser';
+    CKEDITOR.config.filebrowserBrowseUrl  = 'main.upload';
+</script>
+{% endblock %}
+
+<!-- 在标签中直接定义例如class="font-weight-bold" 或者 style="font-size:20px"可以自定义字体大小样式等 -->
+{% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav" style="font-size:20px">
+                <li class="font-weight-bold"><a href="{{ url_for('main.index') }}">Home</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li class="dropdown" style="font-size:18px">
+                    <a href="#" class="dropdown-toggle font-weight-bold" data-toggle="dropdown">
+                        <img src="{{ current_user.gravatar(size=18) }}">
+                        Account
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="font-weight-bold">
+                            <a href="{{ url_for('main.user', username=current_user.username) }}">
+                            Profile</a>
+                        </li>
+                        <li class="font-weight-bold"><a href="{{ url_for('auth.change_password') }}">
+                            Change Password</a>
+                        </li>
+                        <li class="font-weight-bold"><a href="{{ url_for('auth.change_email_request') }}">
+                            Change Email</a>
+                        </li>
+                        {% if current_user.can(Permission.MODERATE) %}
+                        <li class="font-weight-bold"><a href="{{ url_for('main.moderate')}}">
+                            Moderate Comments</a>
+                        </li>
+                        {% endif %}
+                        <li class="font-weight-bold"><a href="{{ url_for('auth.logout') }}">
+                            Log Out</a>
+                        </li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="font-weight-bold" style="font-size:20px"><a href="{{ url_for('auth.login') }}">
+                    Log In</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    {% block page_content %}{% endblock %}
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <hr/>
+        <p class="font-weight-bold">Designed by HC. All rights reserved</p>
+        <p>From September 2020</p>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock %}
